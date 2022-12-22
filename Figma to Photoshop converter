@@ -1,0 +1,50 @@
+# This is some Python code that converts a Figma file into a Photoshop file using the Figma API and the Python Pillow library.
+
+
+import requests
+from PIL import Image
+
+# Replace with your Figma API access token
+ACCESS_TOKEN = "your-access-token"
+
+# Replace with the ID of your Figma file
+FILE_ID = "your-file-id"
+
+# The dimensions of the exported image
+WIDTH = 800
+HEIGHT = 600
+
+# Send a request to the Figma API to get the file data
+response = requests.get(f"https://api.figma.com/v1/files/{FILE_ID}", headers={
+    "X-Figma-Token": ACCESS_TOKEN
+})
+
+# Check for errors
+if response.status_code != 200:
+    print(f"Error: {response.status_code}")
+    exit()
+
+# Get the URL of the image for the first page in the file
+page_id = response.json()["data"]["document"]["children"][0]["id"]
+image_url = response.json()["data"]["images"][page_id]
+
+# Download the image
+response = requests.get(image_url)
+
+# Check for errors
+if response.status_code != 200:
+    print(f"Error: {response.status_code}")
+    exit()
+
+# Save the image to a file
+with open("image.png", "wb") as f:
+    f.write(response.content)
+
+# Open the image using Pillow
+image = Image.open("image.png")
+
+# Resize the image to the desired dimensions
+image = image.resize((WIDTH, HEIGHT), Image.LANCZOS)
+
+# Save the image as a Photoshop file
+image.save("image.psd", "PSD")
