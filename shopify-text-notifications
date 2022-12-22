@@ -1,0 +1,65 @@
+# Shopify Text Notifications: This is a Python script that uses the Shopify API to monitor your store for new orders and low inventory levels, and sends notifications via email and text message.
+
+
+import shopify
+import smtplib
+from twilio.rest import Client
+
+# Replace these values with your own Shopify API keys and store URL
+SHOPIFY_API_KEY = "your-api-key"
+SHOPIFY_API_SECRET = "your-api-secret"
+SHOPIFY_STORE_URL = "https://your-store.myshopify.com"
+
+# Set up the Shopify API client
+shopify.ShopifyResource.set_site(SHOPIFY_STORE_URL)
+shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
+
+# Set up the email and text message notification functions
+def send_email_notification(subject, body):
+    # Replace these values with your own email address and SMTP server details
+    from_addr = "your-email@example.com"
+    to_addr = "recipient-email@example.com"
+    smtp_server = "smtp.example.com"
+    
+    # Set up the email message
+    message = f"Subject: {subject}\n\n{body}"
+    
+    # Send the email
+    with smtplib.SMTP(smtp_server) as server:
+        server.sendmail(from_addr, to_addr, message)
+
+def send_text_notification(body):
+    # Replace these values with your own Twilio account SID, auth token, and phone numbers
+    account_sid = "your-account-sid"
+    auth_token = "your-auth-token"
+    from_number = "+1234567890"
+    to_number = "+0987654321"
+    
+    # Set up the Twilio client
+    client = Client(account_sid, auth_token)
+    
+    # Send the text message
+    client.messages.create(body=body, from_=from_number, to=to_number)
+
+# Monitor the store for new orders and low inventory levels
+while True:
+    # Check for new orders
+    orders = shopify.Order.find()
+    for order in orders:
+        if order.financial_status == "paid":
+            subject = "New Order Received"
+            body = f"You have received a new order with ID {order.id} and total {order.total_price}."
+            send_email_notification(subject, body)
+            send_text_notification(body)
+    
+    # Check for low inventory levels
+    products = shopify.Product.find()
+    for product in products:
+        if product.inventoryQuantity < 10:
+            subject = "Low Inventory Level"
+            body = f"The product {product.title} has a low inventory level of {product.inventoryQuantity}."
+            send_email_notification(subject, body)
+            send_text_notification(body)
+    
+    # Wait a minute before checking again
+    time.sleep(60)
