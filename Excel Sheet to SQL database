@@ -1,0 +1,41 @@
+# This python code converts an XLS file into an SQL database using the xlrd and MySQL Connector libraries. 
+# Note: Only works with a MySQL server running locally and having a database named "test".
+
+
+import xlrd
+import mysql.connector
+
+# Open the XLS file
+workbook = xlrd.open_workbook("data.xls")
+
+# Get the first sheet in the workbook
+sheet = workbook.sheet_by_index(0)
+
+# Connect to the MySQL server
+connection = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="password",
+    database="test"
+)
+
+# Get a cursor for executing SQL queries
+cursor = connection.cursor()
+
+# Create the table
+cursor.execute("DROP TABLE IF EXISTS data")
+cursor.execute("CREATE TABLE data (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), age INT, city VARCHAR(255))")
+
+# Loop over the rows in the sheet
+for row_index in range(1, sheet.nrows):
+    # Get the values for the current row
+    id_, name, age, city = sheet.row_values(row_index)
+
+    # Insert the values into the database
+    cursor.execute("INSERT INTO data (id, name, age, city) VALUES (%s, %s, %s, %s)", (int(id_), name, int(age), city))
+
+# Commit the changes to the database
+connection.commit()
+
+# Close the connection to the database
+connection.close()
