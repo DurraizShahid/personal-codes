@@ -1,0 +1,20 @@
+# This particular code plots cases from Salesforce in a scatter graph | Note: The security_token= function is broken for some reason. Going to have to refer to the libarary's documentation
+
+import datetime
+from simple_salesforce import Salesforce
+
+sf = Salesforce(username='my_username', password='my_password', security_token='my_security_token')
+
+today = datetime.datetime.today()
+thirty_days_ago = today - datetime.timedelta(days=30)
+
+query = "SELECT Id, CreatedDate FROM Case WHERE CreatedDate >= {}".format(thirty_days_ago.strftime('%Y-%m-%dT%H:%M:%SZ'))
+cases = sf.query(query)
+
+import matplotlib.pyplot as plt
+
+x = [case['CreatedDate'] for case in cases['records']]
+y = range(1, len(cases['records'])+1)
+
+plt.scatter(x, y)
+plt.show()
