@@ -1,0 +1,45 @@
+# This is Python script that uses the Shopify API to customize Python script that uses the Shopify API to customize the checkout experience 
+# by adding a custom field to the checkout form and displaying personalized recommendations based on the customer's previous purchases based on the 
+# customer's previous purchases
+
+
+
+
+
+
+
+
+import shopify
+
+# Replace these values with your own Shopify API keys and store URL
+SHOPIFY_API_KEY = "your-api-key"
+SHOPIFY_API_SECRET = "your-api-secret"
+SHOPIFY_STORE_URL = "https://your-store.myshopify.com"
+
+# Set up the Shopify API client
+shopify.ShopifyResource.set_site(SHOPIFY_STORE_URL)
+shopify.Session.setup(api_key=SHOPIFY_API_KEY, secret=SHOPIFY_API_SECRET)
+
+# Add a custom field to the checkout form
+checkout_form = shopify.Checkout.find()
+checkout_form.note = "Please enter your preferred delivery date and time"
+checkout_form.save()
+
+# Display personalized recommendations based on the customer's previous purchases
+customer = shopify.Customer.current()
+previous_orders = customer.orders()
+previous_products = []
+for order in previous_orders:
+    for line_item in order.line_items:
+        previous_products.append(line_item.product)
+recommended_products = []
+for product in shopify.Product.find():
+    if product in previous_products:
+        continue
+    recommended_products.append(product)
+if recommended_products:
+    print("Based on your previous purchases, you might also like:")
+    for product in recommended_products:
+        print(product.title)
+else:
+    print("There are no personalized recommendations based on your previous purchases.")
