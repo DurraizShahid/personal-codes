@@ -1,0 +1,52 @@
+# Python code that converts a texture image into a normal map using the Python Imaging Library (PIL). 
+# This code takes an input image and produces an output image with the same dimensions, but with the pixel values representing surface normals instead of colors.
+
+
+
+from PIL import Image
+import numpy as np
+
+def normal_map(image):
+    # Convert the image to a 2D array of pixel values
+    pixels = np.array(image)
+
+    # Create an empty array to hold the normal map values
+    normals = np.empty_like(pixels)
+
+    # Get the dimensions of the image
+    height, width, channels = pixels.shape
+
+    # Loop over each pixel in the image
+    for y in range(height):
+        for x in range(width):
+            # Get the pixel values of the current pixel and its neighbors
+            center = pixels[y, x]
+            top = pixels[y - 1, x] if y > 0 else center
+            bottom = pixels[y + 1, x] if y < height - 1 else center
+            left = pixels[y, x - 1] if x > 0 else center
+            right = pixels[y, x + 1] if x < width - 1 else center
+
+            # Calculate the surface normal for the current pixel
+            dx = (right[0] - left[0]) * 0.5
+            dy = (bottom[0] - top[0]) * 0.5
+            dz = 1.0
+            length = np.sqrt(dx * dx + dy * dy + dz * dz)
+            if length == 0:
+                length = 1.0
+            dx /= length
+            dy /= length
+            dz /= length
+
+            # Store the surface normal in the normal map array
+            normals[y, x] = (int(127.5 * (dx + 1)), int(127.5 * (dy + 1)), int(127.5 * (dz + 1)))
+
+    # Create a new image from the normal map array
+    return Image.fromarray(normals, "RGB")
+
+# Open the input image
+with Image.open("input.png") as image:
+    # Convert the image to a normal map
+    normal_map = normal_map(image)
+
+    # Save the normal map to a file
+    normal_map.save("output.png")
