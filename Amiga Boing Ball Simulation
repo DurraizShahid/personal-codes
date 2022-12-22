@@ -1,0 +1,65 @@
+#This fun Python experiment uses Gamepy to simulate the classic Amiga Boing Ball demo on a 2d plane. The asset for the ball needs to be imported as per line 16
+
+
+
+import pygame
+import math
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+screen = pygame.display.set_mode((640, 480))
+pygame.display.set_caption("Amiga Boing Ball Simulation")
+
+# Load the ball image
+ball_image = pygame.image.load("Texture.jpg")
+
+# Create a 3D ball object
+class Ball:
+    def __init__(self, x, y, z, vx, vy, vz):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.vx = vx
+        self.vy = vy
+        self.vz = vz
+
+# Create the ball
+ball = Ball(320, 240, 0, 100, 100, 100)
+
+# Set up the clock
+clock = pygame.time.Clock()
+
+# Main game loop
+while True:
+    # Handle events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # Update the ball position
+    ball.x += ball.vx * 0.1
+    ball.y += ball.vy * 0.1
+    ball.z += ball.vz * 0.1
+
+    # Check for collision with walls
+    if ball.x < 0 or ball.x > 640:
+        ball.vx *= -1
+    if ball.y < 0 or ball.y > 480:
+        ball.vy *= -1
+    if ball.z < 0 or ball.z > 480:
+        ball.vz *= -1
+
+    # Clear the screen
+    screen.fill((0, 0, 0))
+
+    # Draw the ball
+    screen.blit(ball_image, (ball.x - 32, ball.y - 32))
+
+    # Update the display
+    pygame.display.flip()
+
+    # Wait for the next frame
+    clock.tick(60)
