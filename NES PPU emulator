@@ -1,0 +1,56 @@
+// The following program emulates the PPU chip inside a Nintendo Entertainment System. The code in itself will NOT generate any graphic itself but is just
+// a mere representation of the schematics and flow of data.
+
+
+
+#include <iostream>
+#include <array>
+
+// NES PPU registers
+constexpr int PPUCTRL = 0x2000; // PPU Control Register
+constexpr int PPUMASK = 0x2001; // PPU Mask Register
+constexpr int PPUSTATUS = 0x2002; // PPU Status Register
+constexpr int OAMADDR = 0x2003; // OAM Address Register
+constexpr int OAMDATA = 0x2004; // OAM Data Register
+constexpr int PPUSCROLL = 0x2005; // PPU Scroll Register
+constexpr int PPUADDR = 0x2006; // PPU Address Register
+constexpr int PPUDATA = 0x2007; // PPU Data Register
+
+// PPU memory maps
+constexpr int PATTERN_TABLE_0 = 0x0000; // Pattern table 0
+constexpr int PATTERN_TABLE_1 = 0x1000; // Pattern table 1
+constexpr int NAME_TABLE_0 = 0x2000; // Name table 0
+constexpr int NAME_TABLE_1 = 0x2400; // Name table 1
+constexpr int NAME_TABLE_2 = 0x2800; // Name table 2
+constexpr int NAME_TABLE_3 = 0x2C00; // Name table 3
+constexpr int ATTRIBUTE_TABLE_0 = 0x23C0; // Attribute table 0
+constexpr int ATTRIBUTE_TABLE_1 = 0x27C0; // Attribute table 1
+constexpr int ATTRIBUTE_TABLE_2 = 0x2BC0; // Attribute table 2
+constexpr int ATTRIBUTE_TABLE_3 = 0x2FC0; // Attribute table 3
+
+// PPU rendering constants
+constexpr int SCREEN_WIDTH = 256; // Width of the screen in pixels
+constexpr int SCREEN_HEIGHT = 240; // Height of the screen in pixels
+constexpr int TILE_WIDTH = 8; // Width of a tile in pixels
+constexpr int TILE_HEIGHT = 8; // Height of a tile in pixels
+
+// OAM (Object Attribute Memory) constants
+constexpr int OAM_SIZE = 0x100; // Size of the OAM in bytes
+
+// PPU internal registers
+int vram_addr = 0x0000; // VRAM address register
+int temp_vram_addr = 0x0000; // Temporary VRAM address register
+int fine_x_scroll = 0x00; // Fine X scroll
+int write_latch = 0x00; // Write latch for VRAM and OAM
+
+// PPU memory
+std::array<uint8_t, 0x4000> memory; // PPU memory
+std::array<uint8_t, OAM_SIZE> oam; // OAM memory
+
+// PPU frame buffer
+std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame_buffer; // Frame buffer
+
+// PPU control flags
+bool nmi_enabled = false; // NMI (Non-Maskable Interrupt) enable flag
+bool sprite_size = false; // Sprite size flag (8x
+
